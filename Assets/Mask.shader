@@ -1,7 +1,7 @@
-﻿Shader "Custom/Mask" {
+﻿Shader "Custom/SharpColorBlockClockwise" {
     Properties {
         _Angle("Angle", Range(0, 180)) = 90
-        _Offset("Offset", Range(0, 360)) = 0
+        _Offset("Offset", Range(0, 360)) = 90
         _MainColor("Main Color", Color) = (1, 0, 0, 1) // Default is red
         _SectorColor("Sector Color", Color) = (0, 1, 0, 1) // Default is green
     }
@@ -38,13 +38,7 @@
                 return o;
             }
 
-            float2 Rotate(float2 uv, float angle) {
-                float s = sin(angle);
-                float c = cos(angle);
-                return float2(uv.x * c - uv.y * s, uv.x * s + uv.y * c);
-            }
-
-            float Circle(float2 uv, float radius) {
+            float CircleMask(float2 uv, float radius) {
                 return saturate(1.0 - length(uv) / radius);
             }
 
@@ -56,11 +50,10 @@
                 // Shift UV to center
                 uv = uv - center;
 
-                // Calculate the angle of the UV point relative to the center, with a clockwise rotation adjustment
-                float angleUV = atan2(uv.y, uv.x); 
+                // Calculate the angle of the UV point relative to the center
+                float angleUV = -atan2(uv.y, uv.x);
 
-                // Normalize to [0, 2*PI] with clockwise adjustment
-                angleUV = -angleUV + 3.14159265359 / 2.0;
+                // Normalize angle to [0, 2*PI]
                 if (angleUV < 0.0) {
                     angleUV += 2.0 * 3.14159265359;
                 }
@@ -69,31 +62,31 @@
                 float angleOffset = radians(_Offset);
                 float sectorAngle = radians(_Angle);
 
-                // Apply rotation offset to the angle
+                // Define sector boundaries (clockwise)
                 float startAngle = angleOffset;
                 float endAngle = angleOffset + sectorAngle;
 
-                // Wrap end angle around 2*PI
-                if (endAngle > 2.0 * 3.14159265359) {
-                    endAngle -= 2.0 * 3.14159265359;
-                }
-
-                // Determine if the current UV is within the sector
+                // Handle wrapping around the 2*PI boundary
                 float sectorMask;
                 if (startAngle < endAngle) {
-                    sectorMask = step(startAngle, angleUV) * step(angleUV, endAngle);
-                } else { 
-                    // This handles the wrap-around case where the sector crosses the 0 angle
-                    sectorMask = step(startAngle, angleUV) + step(angleUV, endAngle);
+                    // Sector does not wrap around 2*PI
+                    sectorMask = (angleUV >= startAngle && angleUV <= endAngle) ? 1.0 : 0.0;
+                } else {
+                    // Sector wraps around 2*PI
+                    sectorMask = (angleUV >= startAngle || angleUV <= endAngle) ? 1.0 : 0.0;
                 }
 
                 // Circle mask
-                float circleMask = Circle(uv, radius);
+                float circleMask = CircleMask(uv, radius);
 
-                // Apply the sector mask and the circle mask
-                float mainColor = 1.0 - circleMask;
-                float sectorColor = sectorMask * circleMask;
-                return lerp(_MainColor, _SectorColor, sectorColor) * mainColor;
+                // Define edge threshold for sharp transition
+                float edgeThreshold = 0.01;
+                float sectorBlend = smoothstep(0.5 - edgeThreshold, 0.5 + edgeThreshold, sectorMask);
+
+                // Final color calculation
+                fixed4 color = lerp(_MainColor, _SectorColor, sectorBlend) * circleMask;
+
+                return color;
             }
             ENDCG
         }
