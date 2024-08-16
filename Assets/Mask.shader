@@ -1,9 +1,10 @@
 ﻿Shader "Custom/SharpColorBlockClockwise" {
     Properties {
-        _Angle("Angle", Range(0, 180)) = 90
-        _Offset("Offset", Range(0, 360)) = 90
+        _Angle("Angle", Range(0, 180)) = 1
+        _Offset("Offset", Range(0, 360)) = 0
         _MainColor("Main Color", Color) = (1, 0, 0, 1) // Default is red
         _SectorColor("Sector Color", Color) = (0, 1, 0, 1) // Default is green
+        _SectorialEnabled("SectorialEnabled", int) = 0
     }
 
     SubShader {
@@ -28,6 +29,7 @@
 
             float _Angle;
             float _Offset;
+            int _SectorialEnabled;
             fixed4 _MainColor;
             fixed4 _SectorColor;
 
@@ -43,6 +45,11 @@
             }
 
             fixed4 frag(v2f i) : SV_Target {
+
+                if(_SectorialEnabled == 0) {
+                    return _MainColor;
+                }
+
                 float2 uv = i.uv;
                 float2 center = float2(0.5, 0.5);
                 float radius = 0.5;

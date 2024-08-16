@@ -73,25 +73,26 @@ Material:
     m_Ints: []
     m_Floats:
     - PixelSnap: 0
-    - _Angle: 59.248642
+    - _Angle: 1
     - _BumpScale: 1
     - _ColorMask: 15
     - _Cutoff: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 10
     - _EnableExternalAlpha: 0
-    - _EyeSectoral: 1
+    - _EyeSectoral: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _Metallic: 0
     - _Mode: 3
     - _OcclusionStrength: 1
-    - _Offset: 79.48922
+    - _Offset: 0
     - _Parallax: 0.02
     - _PixelAngle: 75
     - _SectorEnd: 0
     - _SectorStart: 150
+    - _SectorialEnabled: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -107,7 +108,7 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _MainColor: {r: 0.545, g: 0.271, b: 0.075, a: 1}
+    - _MainColor: {r: 0, g: 0, b: 1, a: 1}
     - _SectorColor: {r: 0, g: 1, b: 0, a: 1}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _Specular: {r: 0, g: 0, b: 0, a: 0}

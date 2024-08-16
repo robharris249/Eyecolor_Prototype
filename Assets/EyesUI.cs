@@ -76,6 +76,16 @@ public class EyesUI : MonoBehaviour {
         leftEyeSectoralOffsetSlider.GetComponent<Slider>().onValueChanged.AddListener(delegate {
             SliderValueChanged(leftEyeSectoralOffsetSlider.GetComponent<Slider>());
         });
+
+        mainEyeMaterial.SetFloat("_Angle", 1f);
+        mainEyeMaterial.SetFloat("_Offset", 0f);
+        mainEyeMaterial.SetColor("_MainColor", Color.blue);
+
+        leftEyeMaterial.SetFloat("_Angle", 1f);
+        leftEyeMaterial.SetFloat("_Offset", 0f);
+        leftEyeMaterial.SetColor("_MainColor", Color.blue);
+
+
     }
 
     void SliderValueChanged(Slider slider) {
@@ -179,11 +189,11 @@ public class EyesUI : MonoBehaviour {
 
                 if(mainEyeSectoralToggle.GetComponent<Toggle>().isOn) {
                     leftEye.transform.localPosition = new Vector3(0, -63.6f, 0);
-                    mainEyeMaterial.SetInt("_EyeSectoral", 1);
+                    mainEyeMaterial.SetInt("_SectorialEnabled", 1);
                 } 
                 else {
                     leftEye.transform.localPosition = new Vector3(0, 55, 0);
-                    mainEyeMaterial.SetInt("_EyeSectoral", 0);
+                    mainEyeMaterial.SetInt("_SectorialEnabled", 0);
                 }
                 break;
 
@@ -191,9 +201,9 @@ public class EyesUI : MonoBehaviour {
                 leftEyeSectoralSettings.SetActive(!leftEyeSectoralSettings.activeSelf);
 
                 if (leftEyeSectoralToggle.GetComponent<Toggle>().isOn) {
-                    leftEyeMaterial.SetInt("_EyeSectoral", 1);
+                    leftEyeMaterial.SetInt("_SectorialEnabled", 1);
                 } else {
-                    leftEyeMaterial.SetInt("_EyeSectoral", 0);
+                    leftEyeMaterial.SetInt("_SectorialEnabled", 0);
                 }
                 break;
         }
