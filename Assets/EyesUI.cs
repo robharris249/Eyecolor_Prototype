@@ -28,11 +28,12 @@ public class EyesUI : MonoBehaviour {
     public Material leftEyeMaterial;
     public GameObject leftEyeSectoralOffsetSlider;
 
+    public Sprite blueEye;
+    public Sprite greenEye;
+    public Sprite brownEye;
+
     // Start is called before the first frame update
     void Start() {
-
-        mainEyeMaterial.SetInt("_EyeSectoral", 0);
-        leftEyeMaterial.SetInt("_EyeSectoral", 0);
 
         heteroChromiaToggle.onValueChanged.AddListener(delegate {
              ToggleValueChanged(heteroChromiaToggle);
@@ -79,12 +80,13 @@ public class EyesUI : MonoBehaviour {
 
         mainEyeMaterial.SetFloat("_Angle", 1f);
         mainEyeMaterial.SetFloat("_Offset", 0f);
-        mainEyeMaterial.SetColor("_MainColor", Color.blue);
+        mainEyeMaterial.SetTexture("_MainTex", blueEye.texture);
+        mainEyeMaterial.SetInt("_SectorialEnabled", 0);
 
         leftEyeMaterial.SetFloat("_Angle", 1f);
         leftEyeMaterial.SetFloat("_Offset", 0f);
-        leftEyeMaterial.SetColor("_MainColor", Color.blue);
-
+        leftEyeMaterial.SetTexture("_MainTex", blueEye.texture);
+        leftEyeMaterial.SetInt("_SectorialEnabled", 0);
 
     }
 
@@ -133,38 +135,39 @@ public class EyesUI : MonoBehaviour {
         if(heteroChromiaToggle.isOn) {
             switch(dropdown.gameObject.name) {
                 case "MainEye":
-                    mainEyeMaterial.SetColor("_MainColor", ColourChange(dropdown));
+                    mainEyeMaterial.SetTexture("_MainTex", ColourChange(dropdown));
                     break;
                 case "LeftEye":
-                    leftEyeMaterial.SetColor("_MainColor", ColourChange(dropdown));
+                    leftEyeMaterial.SetTexture("_MainTex", ColourChange(dropdown));
                     break;
                 case "MainSectoralColourDropDown":
                     Debug.Log("Main Here");
-                    mainEyeMaterial.SetColor("_SectorColor", ColourChange(dropdown));
+                    mainEyeMaterial.SetTexture("_SectorTex", ColourChange(dropdown));
                     break;
                 case "LeftSectoralColourDropDown":
                     Debug.Log("Left Here");
-                    leftEyeMaterial.SetColor("_SectorColor", ColourChange(dropdown));
+                    leftEyeMaterial.SetTexture("_SectorTex", ColourChange(dropdown));
                     break;
             }
         }
         else {
-            mainEyeMaterial.SetColor("_MainColor", ColourChange(dropdown));
-            leftEyeMaterial.SetColor("_MainColor", ColourChange(dropdown));
+            mainEyeMaterial.SetTexture("_MainTex", ColourChange(dropdown));
+            leftEyeMaterial.SetTexture("_MainTex", ColourChange(dropdown));
         }
     }
 
-    Color ColourChange(Dropdown dropdown) {
+    Texture ColourChange(Dropdown dropdown) {
 
         switch(dropdown.value) {
             case 1:
-                return Color.blue;
+                return blueEye.texture;
             case 2:
-                return new Color(0.545f, 0.271f, 0.075f, 1.0f);//Brown
+                return brownEye.texture;
             case 3:
-                return Color.green;
+                return greenEye.texture;
             default:
-                return Color.red;
+                Debug.Log("ERROR @ line 172");
+                return null;
         }
     }
 

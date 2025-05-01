@@ -1,10 +1,11 @@
-﻿Shader "Custom/SharpColorBlockClockwise" {
+Shader "Custom/TextureUVMapping" {
     Properties {
-        _Angle("Angle", Range(0, 180)) = 1
+        _MainTex("Main Texture", 2D) = "white" {}
+        _SectorTex("Sector Texture", 2D) = "white" {}
+        _Angle("Angle", Range(0, 180)) = 90
         _Offset("Offset", Range(0, 360)) = 0
-        _MainColor("Main Color", Color) = (1, 0, 0, 1) // Default is red
-        _SectorColor("Sector Color", Color) = (0, 1, 0, 1) // Default is green
         _SectorialEnabled("SectorialEnabled", int) = 0
+        _BlurAmount("Blur Amount", Range(0.0, 1.0)) = 0.9 // Range from 0 to 1, control the blur amount
     }
 
     SubShader {
@@ -27,11 +28,12 @@
                 float2 uv : TEXCOORD0;
             };
 
+            sampler2D _MainTex;
+            sampler2D _SectorTex;
             float _Angle;
             float _Offset;
             int _SectorialEnabled;
-            fixed4 _MainColor;
-            fixed4 _SectorColor;
+            float _BlurAmount;
 
             v2f vert(appdata v) {
                 v2f o;
@@ -40,21 +42,25 @@
                 return o;
             }
 
-            float CircleMask(float2 uv, float radius) {
-                return saturate(1.0 - length(uv) / radius);
+            // Function to calculate the distance from the angle to the sector edge
+            float getEdgeBlendFactor(float angleUV, float startAngle, float endAngle, float blurWidth) {
+                float blendFactor = 0.0;
+
+                // If angle is within blur range, blend it
+                if (angleUV >= startAngle - blurWidth && angleUV <= startAngle) {
+                    blendFactor = 1.0 - (startAngle - angleUV) / blurWidth;
+                } else if (angleUV >= endAngle && angleUV <= endAngle + blurWidth) {
+                    blendFactor = 1.0 - (angleUV - endAngle) / blurWidth;
+                }
+
+                return blendFactor;
             }
 
             fixed4 frag(v2f i) : SV_Target {
-
-                if(_SectorialEnabled == 0) {
-                    return _MainColor;
-                }
-
                 float2 uv = i.uv;
                 float2 center = float2(0.5, 0.5);
-                float radius = 0.5;
 
-                // Shift UV to center
+                // Shift UV to the center
                 uv = uv - center;
 
                 // Calculate the angle of the UV point relative to the center
@@ -74,7 +80,7 @@
                 float endAngle = angleOffset + sectorAngle;
 
                 // Handle wrapping around the 2*PI boundary
-                float sectorMask;
+                float sectorMask = 0.0;
                 if (startAngle < endAngle) {
                     // Sector does not wrap around 2*PI
                     sectorMask = (angleUV >= startAngle && angleUV <= endAngle) ? 1.0 : 0.0;
@@ -83,15 +89,27 @@
                     sectorMask = (angleUV >= startAngle || angleUV <= endAngle) ? 1.0 : 0.0;
                 }
 
-                // Circle mask
-                float circleMask = CircleMask(uv, radius);
+                // Apply the smooth transition based on the distance to the sector edge
+                float blurWidth = _BlurAmount * (sectorAngle * 0.5);  // Adjust the blur width
+                float edgeBlendFactor = getEdgeBlendFactor(angleUV, startAngle, endAngle, blurWidth);
 
-                // Define edge threshold for sharp transition
-                float edgeThreshold = 0.01;
-                float sectorBlend = smoothstep(0.5 - edgeThreshold, 0.5 + edgeThreshold, sectorMask);
+                // Sample textures
+                fixed4 mainTexColor = tex2D(_MainTex, i.uv);
+                fixed4 sectorTexColor = tex2D(_SectorTex, i.uv);
 
-                // Final color calculation
-                fixed4 color = lerp(_MainColor, _SectorColor, sectorBlend) * circleMask;
+                // If sector is enabled, blend the textures based on the edge factor
+                fixed4 color;
+                if (_SectorialEnabled == 0) {
+                    color = mainTexColor;
+                } else {
+                    // Use edgeBlendFactor to smoothly blend the textures
+                    color = lerp(mainTexColor, sectorTexColor, sectorMask * (1.0 - edgeBlendFactor));
+                }
+
+                // If the alpha value is too low (faint transparency), discard the fragment
+                if (color.a < 0.8) {
+                    discard;
+                }
 
                 return color;
             }
