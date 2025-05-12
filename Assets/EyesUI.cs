@@ -179,7 +179,11 @@ public class EyesUI : MonoBehaviour {
                     if (leftEyeSectoralToggle.GetComponent<Toggle>().isOn) {
                         leftEyeMaterial.SetInt("_SectorialEnabled", 1);
                     }
+
+                    leftEyeMaterial.SetTexture("_MainTex", ColourChange(leftEyeColourDropDown.GetComponent<Dropdown>()));
+
                 } else {
+                    leftEyeMaterial.SetTexture("_MainTex" ,mainEyeMaterial.GetTexture("_MainTex"));
                     mainEyeMaterial.SetInt("_SectorialEnabled", 0);
                     leftEyeMaterial.SetInt("_SectorialEnabled", 0);
                 }
