@@ -7,6 +7,10 @@ public class EyesUI : MonoBehaviour {
 
     public Toggle heteroChromiaToggle;
     public GameObject rightEyeTitle;
+    public GameObject leftEyeTitle;
+
+    public GameObject rightEyeContainer;
+    public GameObject leftEyeContainer;
 
     public GameObject mainEye;
     public GameObject mainEyeSectoralToggle;
@@ -81,11 +85,13 @@ public class EyesUI : MonoBehaviour {
         mainEyeMaterial.SetFloat("_Angle", 1f);
         mainEyeMaterial.SetFloat("_Offset", 0f);
         mainEyeMaterial.SetTexture("_MainTex", blueEye.texture);
+        mainEyeMaterial.SetTexture("_SectorTex", blueEye.texture);
         mainEyeMaterial.SetInt("_SectorialEnabled", 0);
 
         leftEyeMaterial.SetFloat("_Angle", 1f);
         leftEyeMaterial.SetFloat("_Offset", 0f);
         leftEyeMaterial.SetTexture("_MainTex", blueEye.texture);
+        leftEyeMaterial.SetTexture("_SectorTex", blueEye.texture);
         leftEyeMaterial.SetInt("_SectorialEnabled", 0);
 
     }
@@ -96,14 +102,6 @@ public class EyesUI : MonoBehaviour {
 
             case "MainSectoralSlider":
                 mainEyeMaterial.SetFloat("_Angle", slider.value);
-
-                Debug.Log(
-                    "Angle: " + mainEyeMaterial.GetFloat("_Angle") + "\n" +
-                    "OffSet: " + mainEyeMaterial.GetFloat("_Offset") + "\n" +
-                    "SectorStart: " + mainEyeMaterial.GetFloat("_SectorStart") + "\n" +
-                    "SectorEnd: " + mainEyeMaterial.GetFloat("_SectorEnd") + "\n"
-                    );
-
                 break;
 
             case "LeftSectoralSlider":
@@ -112,14 +110,6 @@ public class EyesUI : MonoBehaviour {
 
             case "MainOffsetSlider":
                 mainEyeMaterial.SetFloat("_Offset", slider.value);
-
-                Debug.Log(
-                    "Angle: " + mainEyeMaterial.GetFloat("_Angle") + "\n" +
-                    "OffSet: " + mainEyeMaterial.GetFloat("_Offset") + "\n" +
-                    "SectorStart: " + mainEyeMaterial.GetFloat("_SectorStart") + "\n" +
-                    "SectorEnd: " + mainEyeMaterial.GetFloat("_SectorEnd") + "\n"
-                    );
-
                 break;
 
             case "LeftOffsetSlider":
@@ -134,18 +124,16 @@ public class EyesUI : MonoBehaviour {
 
         if(heteroChromiaToggle.isOn) {
             switch(dropdown.gameObject.name) {
-                case "MainEye":
+                case "MainEyeColourDropdown":
                     mainEyeMaterial.SetTexture("_MainTex", ColourChange(dropdown));
                     break;
-                case "LeftEye":
+                case "LeftEyeColourDropdown":
                     leftEyeMaterial.SetTexture("_MainTex", ColourChange(dropdown));
                     break;
                 case "MainSectoralColourDropDown":
-                    Debug.Log("Main Here");
                     mainEyeMaterial.SetTexture("_SectorTex", ColourChange(dropdown));
                     break;
                 case "LeftSectoralColourDropDown":
-                    Debug.Log("Left Here");
                     leftEyeMaterial.SetTexture("_SectorTex", ColourChange(dropdown));
                     break;
             }
@@ -159,14 +147,14 @@ public class EyesUI : MonoBehaviour {
     Texture ColourChange(Dropdown dropdown) {
 
         switch(dropdown.value) {
-            case 1:
+            case 0:
                 return blueEye.texture;
-            case 2:
+            case 1:
                 return brownEye.texture;
-            case 3:
+            case 2:
                 return greenEye.texture;
             default:
-                Debug.Log("ERROR @ line 172");
+                Debug.Log("ERROR @ line 157");
                 return null;
         }
     }
@@ -175,27 +163,38 @@ public class EyesUI : MonoBehaviour {
 
         switch(toggle.gameObject.name) {
             case "HeterochromiaToggle":
+                //Right Eye
                 rightEyeTitle.SetActive(!rightEyeTitle.activeSelf);
-                leftEye.SetActive(!leftEye.activeSelf);
                 mainEyeSectoralToggle.SetActive(!mainEyeSectoralToggle.activeSelf);
+
+                //LeftEye
+                leftEye.SetActive(!leftEye.activeSelf);
+                leftEyeTitle.SetActive(!leftEyeTitle.activeSelf);
                 leftEyeSectoralToggle.SetActive(!leftEyeSectoralToggle.activeSelf);
 
-                if (mainEyeSectoralSettings.activeSelf && !heteroChromiaToggle.isOn) {
-                    mainEyeSectoralSettings.SetActive(false);
-                } else if (mainEyeSectoralToggle.GetComponent<Toggle>().isOn && heteroChromiaToggle.isOn) {
-                    mainEyeSectoralSettings.SetActive(true);
+                if(heteroChromiaToggle.isOn) {
+                    if (mainEyeSectoralToggle.GetComponent<Toggle>().isOn) {
+                        mainEyeMaterial.SetInt("_SectorialEnabled", 1);
+                    }
+                    if (leftEyeSectoralToggle.GetComponent<Toggle>().isOn) {
+                        leftEyeMaterial.SetInt("_SectorialEnabled", 1);
+                    }
+                } else {
+                    mainEyeMaterial.SetInt("_SectorialEnabled", 0);
+                    leftEyeMaterial.SetInt("_SectorialEnabled", 0);
                 }
-                break;
+
+                    break;
             
             case "MainEyeSectoralToggle":
                 mainEyeSectoralSettings.SetActive(!mainEyeSectoralSettings.activeSelf);
 
                 if(mainEyeSectoralToggle.GetComponent<Toggle>().isOn) {
-                    leftEye.transform.localPosition = new Vector3(0, -63.6f, 0);
+                    leftEyeContainer.transform.localPosition = new Vector3(-443.2466f, -63.6f, 0);
                     mainEyeMaterial.SetInt("_SectorialEnabled", 1);
                 } 
                 else {
-                    leftEye.transform.localPosition = new Vector3(0, 55, 0);
+                    leftEyeContainer.transform.localPosition = new Vector3(-443.2466f, 36.26899f, 0);
                     mainEyeMaterial.SetInt("_SectorialEnabled", 0);
                 }
                 break;
